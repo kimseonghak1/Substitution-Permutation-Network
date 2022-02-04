@@ -164,5 +164,5 @@ int main() {
     for (int i = 0; i < 16; i++) {
         printf("%d", ciphertext2[i]);
     }
-    puts("");
+    puts("  ");
 }
