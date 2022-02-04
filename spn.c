@@ -1,3 +1,4 @@
+// 비선형 S-box, 선형 P-box
 #include <stdio.h>
 
 int plaintext = 0xABCD; // 16비트
