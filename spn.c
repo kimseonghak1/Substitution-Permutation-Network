@@ -91,7 +91,6 @@ void SPNcihper0(int plaintext[16], int KeyBlock[5][16], int ciphertext[16]) {
 void SPNcihper1(int plaintext[16], int KeyBlock[5][16], int ciphertext[16]) {
     int Block[16] = { 0, }, outBlock[16];
     for (int round = 0; round < 4; round++) {
-        
         if(round ==0) mixer1(plaintext, Block, KeyBlock[round]); // round 1
         if (round > 0 && round < 3) { // round 2,3
             mixer1(Block, Block, KeyBlock[round]);
@@ -102,6 +101,23 @@ void SPNcihper1(int plaintext[16], int KeyBlock[5][16], int ciphertext[16]) {
     }
     exclusiveOr(outBlock, KeyBlock[4], ciphertext); // subkey K5 mixing
 }
+
+void HEX(int n, int BIN[], int HEX[]) { //'A'65 'B'66 'C'67 'D'68 'F'69             '0'48 '1'49 '2'50 '3'51 '4'52 '5'53 '6'54 '7'55 '8'56 '9'57
+    int value[64];
+    n = n / 4;
+    for (int i = 0; i < n; i++) {
+        value[i] = 8 * BIN[i * 4] + 4 * BIN[i * 4 + 1] + 2 * BIN[i * 4 + 2] + BIN[i * 4 + 3];
+    }
+    for (int i = 0; i < n; i++) {
+        if (value[i] < 10) {
+            HEX[i] = value[i] + 48;
+        }
+        else {
+            HEX[i] = value[i] + 55;
+        }
+    }
+}
+
 int main() {
     printf("\n\n======================[KEY]=======================\n");
     int KEYBlock[5][16];
@@ -134,54 +150,102 @@ int main() {
         printf("%d", plainBlock0[i]);
     }
     printf("\n\n=======================[CIPHERBLOCK]====================");
-    printf("\n    [CIPHERTEXT]: ");
+    printf("\n       [CIPHERTEXT]: ");
     SPNcihper0(plainBlock0, KEYBlock, ciphertext0);
     for (int i = 0; i < 16; i++) {
         printf("%d", ciphertext0[i]);
     }
-
+    int HEXciphertext0[4];
+    HEX(16, ciphertext0, HEXciphertext0);
+    printf("\n    [HEXCIPHERTEXT]: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXciphertext0[i]);
+    }
     printf("\n\n=======================[ROUND(1)]=======================");
     printf("\n     {K1 mixing}: ");
     mixer(plainBlock0, mixer0, KEYBlock[0]);    
     for (int i = 0; i < 16; i++) {
         printf("%d", mixer0[i]);
     }
+    printf("\n     {K1 mixing}: ");
+    int HEXmixer0[4];
+    HEX(16, mixer0, HEXmixer0);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixer0[i]);
+    }
     printf("\n     [K1 mixing]: ");
     exclusiveOr(plainBlock0, KEYBlock[0], plainBlock0);
     for (int i = 0; i < 16; i++) {
         printf("%d", plainBlock0[i]);
+    }
+    printf("\n     [K1 mixing]: ");
+    int HEXplainBlock0[4];
+    HEX(16, plainBlock0, HEXplainBlock0);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXplainBlock0[i]);
     }
     printf("\n[{SUB}K1 mixing]: ");
     substitute(plainBlock0, mixingSBlock, sBox1);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingSBlock[i]);
     }
+    printf("\n[{SUB}K1 mixing]: ");
+    int HEXmixingSBlock[4];
+    HEX(16, mixingSBlock, HEXmixingSBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingSBlock[i]);
+    }
     printf("\n[{PER}K1 mixing]: ");
     permute(mixingSBlock, mixingPBlock, pBox1);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingPBlock[i]);
     }
-
+    printf("\n[{PER}K1 mixing]: ");
+    int HEXmixingPBlock[4];
+    HEX(16, mixingPBlock, HEXmixingPBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingPBlock[i]);
+    }
     printf("\n\n=======================[ROUND(2)]=======================");
     printf("\n     {K2 mixing}: ");
     mixer(mixingPBlock, mixer0, KEYBlock[1]);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixer0[i]);
     }
+    printf("\n     {K2 mixing}: ");
+    HEX(16, mixer0, HEXmixer0);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixer0[i]);
+    }
     printf("\n     [K2 mixing]: ");
     exclusiveOr(mixingPBlock, KEYBlock[1], mixingPBlock);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingPBlock[i]);
+    }
+    printf("\n     [K2 mixing]: ");
+    HEX(16, mixingPBlock, HEXmixingPBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingPBlock[i]);
     }
     printf("\n[{SUB}K2 mixing]: ");
     substitute(mixingPBlock, mixingSBlock, sBox1);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingSBlock[i]);
     }
+    printf("\n[{SUB}K2 mixing]: ");
+    HEX(16, mixingSBlock, HEXmixingSBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingSBlock[i]);
+    }
     printf("\n[{PER}K2 mixing]: ");
     permute(mixingSBlock, mixingPBlock, pBox1);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingPBlock[i]);
+    }
+    printf("\n[{PER}K2 mixing]: ");
+    HEX(16, mixingPBlock, HEXmixingPBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingPBlock[i]);
     }
     printf("\n\n=======================[ROUND(3)]=======================");
     printf("\n     {K3 mixing}: ");
@@ -189,20 +253,40 @@ int main() {
     for (int i = 0; i < 16; i++) {
         printf("%d", mixer0[i]);
     }
+    printf("\n     {K3 mixing}: ");
+    HEX(16, mixer0, HEXmixer0);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixer0[i]);
+    }
     printf("\n     [K3 mixing]: ");
     exclusiveOr(mixingPBlock, KEYBlock[2], mixingPBlock);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingPBlock[i]);
+    }
+    printf("\n     [K3 mixing]: ");
+    HEX(16, mixingPBlock, HEXmixingPBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingPBlock[i]);
     }
     printf("\n[{SUB}K3 mixing]: ");
     substitute(mixingPBlock, mixingSBlock, sBox1);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingSBlock[i]);
     }
+    printf("\n[{SUB}K3 mixing]: ");
+    HEX(16, mixingSBlock, HEXmixingSBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingSBlock[i]);
+    }
     printf("\n[{PER}K3 mixing]: ");
     permute(mixingSBlock, mixingPBlock, pBox1);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingPBlock[i]);
+    }
+    printf("\n[{PER}K3 mixing]: ");
+    HEX(16, mixingPBlock, HEXmixingPBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingPBlock[i]);
     }
     printf("\n\n=======================[ROUND(4)]=======================");
     printf("\n     [K4 mixing]: ");
@@ -210,16 +294,31 @@ int main() {
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingPBlock[i]);
     }
+    printf("\n     [K4 mixing]: ");
+    HEX(16, mixingPBlock, HEXmixingPBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingPBlock[i]);
+    }
     printf("\n[{SUB}K4 mixing]: ");
     substitute(mixingPBlock, mixingSBlock, sBox1);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingSBlock[i]);
+    }
+    printf("\n[{SUB}K4 mixing]: ");
+    HEX(16, mixingSBlock, HEXmixingSBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingSBlock[i]);
     }
     printf("\n\n=======================[KEY5 MIXING]====================");
     printf("\n     [K5 mixing]: ");
     exclusiveOr(mixingSBlock, KEYBlock[4], mixingPBlock);
     for (int i = 0; i < 16; i++) {
         printf("%d", mixingPBlock[i]);
+    }
+    printf("\n     [K5 mixing]: ");
+    HEX(16, mixingPBlock, HEXmixingPBlock);
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXmixingPBlock[i]);
     }
     printf("\n\n ");
     printf("\n\n======================[평문]======================\n");
@@ -234,12 +333,17 @@ int main() {
     for (int i = 0; i < 16; i++) {
         printf("%d", plainBlock1[i]);
     }
-
     printf("\n\n====================[S-Box(X)]=====================\n");
     SPNcihper1(plainBlock1, KEYBlock, ciphertext1);
     printf("[암호문]2진수: ");
     for (int i = 0; i < 16; i++) {
         printf("%d", ciphertext1[i]);
+    }
+    int HEXciphertext1[4];
+    HEX(16, ciphertext1, HEXciphertext1);
+    printf("\n[HEXCIPHERTEXT]: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXciphertext1[i]);
     }
     printf("\n\n====================[S-Box(O)]=====================\n");
     SPNcihper(plainBlock1, KEYBlock, ciphertext1);
@@ -247,7 +351,11 @@ int main() {
     for (int i = 0; i < 16; i++) {
         printf("%d", ciphertext1[i]);
     }
-
+    HEX(16, ciphertext1, HEXciphertext1);
+    printf("\n[HEXCIPHERTEXT]: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXciphertext1[i]);
+    }
     printf("\n\n======================[평문]======================\n");
     printf("[평문]16진수: %X\n", plaintext2);
     int plainBlock2[16] = { 0, }, ciphertext2[16];
@@ -259,18 +367,28 @@ int main() {
     for (int i = 0; i < 16; i++) {
         printf("%d", plainBlock2[i]);
     }
-
     printf("\n\n====================[S-Box(X)]=====================\n");
     SPNcihper1(plainBlock2, KEYBlock, ciphertext2);
     printf("[암호문]2진수: ");
     for (int i = 0; i < 16; i++) {
         printf("%d", ciphertext2[i]);
     }
+    int HEXciphertext2[4];
+    HEX(16, ciphertext2, HEXciphertext2);
+    printf("\n[HEXCIPHERTEXT]: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXciphertext2[i]);
+    }
     printf("\n\n====================[S-Box(O)]=====================\n");
     SPNcihper(plainBlock2, KEYBlock, ciphertext2);
     printf("[암호문]2진수: ");
     for (int i = 0; i < 16; i++) {
         printf("%d", ciphertext2[i]);
+    }
+    HEX(16, ciphertext2, HEXciphertext2);
+    printf("\n[HEXCIPHERTEXT]: ");
+    for (int i = 0; i < 4; i++) {
+        printf("%c", HEXciphertext2[i]);
     }
     puts("  ");
 }
